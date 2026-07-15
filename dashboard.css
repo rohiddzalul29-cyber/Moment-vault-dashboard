@@ -1,10 +1,17 @@
+/* =========================================================
+   MEMORY VAULT — DASHBOARD
+   Underline tabs, kartu bertekstur kertas dengan aksen
+   selotip di header, input bergaya "garis buku catatan".
+   ========================================================= */
+
 .topbar {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 14px var(--space-4);
-  background: rgba(255, 255, 255, 0.9);
-  border-bottom: 1px solid var(--color-gray-100);
+  padding: 12px var(--space-4);
+  background: rgba(255, 253, 249, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-gray-200);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -19,42 +26,61 @@
 .topbar__mark {
   width: 34px;
   height: 34px;
-  border-radius: 10px;
-  background: var(--color-sky);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-sky), var(--color-sky-deep));
   color: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 14px;
 }
 
 .topbar__title {
-  font-family: var(--font-display);
-  font-size: 18px;
+  font-family: var(--font-hand);
+  font-size: 24px;
   font-weight: 600;
+  color: var(--color-sky-deep);
 }
 
+/* ---- TAB NAV: garis bawah, bukan pil ---- */
 .dash-tabs {
   display: flex;
-  gap: 4px;
-  background: var(--color-gray-50);
-  padding: 4px;
-  border-radius: 999px;
+  gap: 2px;
   margin-left: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.dash-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .dash-tabs .nav-link {
+  position: relative;
   border: none;
   background: transparent;
-  padding: 8px 16px;
-  border-radius: 999px;
+  padding: 8px 12px 10px;
+  border-radius: 0;
   font-size: 13.5px;
   font-weight: 500;
-  color: var(--color-ink-soft);
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
+  color: var(--color-ink-faint);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.dash-tabs .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-sky);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
 }
 
 .dash-tabs .nav-link:hover {
@@ -62,8 +88,13 @@
 }
 
 .dash-tabs .nav-link.is-active {
-  background: var(--color-sky);
-  color: var(--color-white);
+  background: transparent;
+  color: var(--color-sky-deep);
+  font-weight: 600;
+}
+
+.dash-tabs .nav-link.is-active::after {
+  transform: scaleX(1);
 }
 
 .dash-tab {
@@ -92,11 +123,11 @@
   .topbar {
     flex-wrap: wrap;
     gap: 10px;
+    padding: 12px var(--space-2);
   }
   .dash-tabs {
     order: 3;
     width: 100%;
-    justify-content: space-between;
     margin-left: 0;
   }
   .topbar__link {
@@ -107,8 +138,8 @@
 .topbar__link {
   margin-left: auto;
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 600;
   color: var(--color-sky-deep);
 }
 
@@ -120,10 +151,10 @@
   border: 1.5px solid var(--color-gray-200);
   background: var(--color-white);
   color: var(--color-ink-soft);
-  padding: 8px 16px;
+  padding: 7px 15px;
   border-radius: 999px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12.5px;
+  font-weight: 600;
 }
 
 .topbar__logout:hover {
@@ -134,14 +165,17 @@
 main {
   max-width: 760px;
   margin: 0 auto;
-  padding: var(--space-3) var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-3) var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
+/* ---- PANEL: kartu kertas dengan selotip di header ---- */
 .panel {
+  position: relative;
   background: var(--color-white);
+  border: 1px solid var(--color-gray-100);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: var(--space-3);
@@ -151,18 +185,33 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-2);
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px dashed var(--color-gray-200);
 }
 
 .panel__head h2 {
   font-size: 19px;
+  letter-spacing: -0.01em;
+}
+
+.panel__head h2::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-sky);
+  margin-right: 9px;
+  vertical-align: middle;
 }
 
 /* ---- FORM ---- */
 .memory-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
 
 .form-row {
@@ -174,7 +223,7 @@ main {
 
 .form-row-split {
   display: flex;
-  gap: 14px;
+  gap: 18px;
 }
 
 @media (max-width: 520px) {
@@ -184,36 +233,49 @@ main {
 }
 
 .form-row label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-faint);
 }
 
+/* input bergaya "garis buku catatan" — bawah saja, tanpa kotak */
 .form-row input,
 .form-row textarea,
 .form-row select {
-  border: 1.5px solid var(--color-gray-200);
-  background: var(--color-gray-50);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  font-size: 14.5px;
+  border: none;
+  border-bottom: 1.5px solid var(--color-gray-200);
+  background: transparent;
+  border-radius: 0;
+  padding: 8px 2px;
+  font-size: 15px;
+  font-family: var(--font-body);
   color: var(--color-ink);
   resize: vertical;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease;
+  transition: border-color 0.2s ease;
+}
+
+.form-row textarea {
+  border: 1.5px solid var(--color-gray-200);
+  border-radius: var(--radius-sm);
+  background: var(--color-gray-50);
+  padding: 10px 12px;
 }
 
 .form-row input:focus,
 .form-row textarea:focus,
 .form-row select:focus {
   border-color: var(--color-sky);
-  background: var(--color-white);
   outline: none;
 }
 
+.form-row select {
+  cursor: pointer;
+}
+
 .form-hint {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--color-ink-faint);
 }
 
@@ -221,17 +283,22 @@ main {
 .memory-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
 }
 
 .memory-row {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 10px;
+  padding: 12px 6px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-gray-100);
+  border: none;
+  border-bottom: 1px solid var(--color-gray-100);
   transition: background 0.2s ease;
+}
+
+.memory-row:last-child {
+  border-bottom: none;
 }
 
 .memory-row:hover {
@@ -239,12 +306,18 @@ main {
 }
 
 .memory-row__thumb {
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
   object-fit: cover;
   background: var(--color-gray-100);
   flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(43, 36, 30, 0.14);
+  transition: transform 0.2s ease;
+}
+
+.memory-row:hover .memory-row__thumb {
+  transform: rotate(-2deg) scale(1.04);
 }
 
 .memory-row__info {
@@ -253,7 +326,8 @@ main {
 }
 
 .memory-row__title {
-  font-size: 15px;
+  font-family: var(--font-display);
+  font-size: 15.5px;
   font-weight: 600;
   margin-bottom: 2px;
   white-space: nowrap;
@@ -262,7 +336,7 @@ main {
 }
 
 .memory-row__meta {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--color-ink-faint);
 }
 
@@ -302,7 +376,7 @@ main {
   border: none;
   border-radius: var(--radius-sm);
   padding: 7px 12px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
 }
 
@@ -314,4 +388,12 @@ main {
 .btn-edit:hover {
   background: var(--color-sky);
   color: var(--color-white);
+}
+
+/* ---- STATE MESSAGES (loading / empty) ---- */
+.state-message {
+  font-size: 13.5px;
+  color: var(--color-ink-faint);
+  text-align: center;
+  padding: var(--space-3) 0;
 }
