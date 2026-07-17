@@ -55,6 +55,12 @@
           <button class="nav-link" data-tab="tab-quotes">Quotes</button>
           <button class="nav-link" data-tab="tab-journal">Journal</button>
           <button class="nav-link" data-tab="tab-confessions">Curhat</button>
+          <button class="nav-link" data-tab="tab-messages">
+            Pesan<span
+              id="messages-unread-badge"
+              class="tab-badge hidden"
+            ></span>
+          </button>
           <button class="nav-link" data-tab="tab-songs">Lagu</button>
           <button class="nav-link" data-tab="tab-books">Book Shelf</button>
           <button class="nav-link" data-tab="tab-movies">Movie Log</button>
@@ -332,6 +338,24 @@
               Belum ada curhatan.
             </div>
             <div id="confession-list" class="memory-list"></div>
+          </section>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB: PESAN                                                    -->
+        <!-- ============================================================ -->
+        <div id="tab-messages" class="dash-tab">
+          <section class="panel">
+            <div class="panel__head">
+              <h2>Pesan Masuk</h2>
+            </div>
+            <div id="message-list-loading" class="state-message">
+              Memuat data...
+            </div>
+            <div id="message-list-empty" class="state-message hidden">
+              Belum ada pesan.
+            </div>
+            <div id="message-list" class="message-list"></div>
           </section>
         </div>
 
