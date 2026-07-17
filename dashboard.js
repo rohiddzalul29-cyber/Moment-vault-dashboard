@@ -77,6 +77,7 @@ async function showDashboard() {
   loadQuotes();
   loadJournalEntries();
   loadConfessions();
+  loadMessages();
   loadSongs();
   loadBooks();
   loadMovies();
@@ -179,6 +180,17 @@ function formatDate(dateStr) {
     day: "numeric",
     month: "short",
     year: "numeric",
+  });
+}
+
+function formatDateTime(dateStr) {
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
@@ -819,6 +831,123 @@ async function deleteConfession(id) {
   if (editingConfession && String(editingConfession.id) === String(id))
     resetConfessionForm();
   loadConfessions();
+}
+
+// =========================================================
+// PESAN (messages) — elemen
+// Pesan dikirim pengunjung dari halaman publik, baik dari isi
+// curhatan tertentu (confession_title terisi) maupun dari halaman
+// "Pesan" umum (confession_title kosong). Dashboard hanya bisa
+// membaca, menandai terbaca, dan menghapus — tidak ada form tambah,
+// karena pesan hanya dikirim oleh pengunjung.
+// =========================================================
+const messageListLoading = document.getElementById("message-list-loading");
+const messageListEmpty = document.getElementById("message-list-empty");
+const messageListEl = document.getElementById("message-list");
+const messagesUnreadBadge = document.getElementById("messages-unread-badge");
+
+async function loadMessages() {
+  messageListLoading.classList.remove("hidden");
+  messageListEmpty.classList.add("hidden");
+
+  const { data, error } = await supabaseClient
+    .from("messages")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  messageListLoading.classList.add("hidden");
+
+  if (error) {
+    console.error(error);
+    messageListEmpty.textContent = "Gagal memuat pesan.";
+    messageListEmpty.classList.remove("hidden");
+    return;
+  }
+
+  updateUnreadBadge(data || []);
+
+  if (!data || data.length === 0) {
+    messageListEmpty.classList.remove("hidden");
+    messageListEl.innerHTML = "";
+    return;
+  }
+  renderMessageList(data);
+}
+
+function updateUnreadBadge(items) {
+  const unreadCount = items.filter((m) => !m.is_read).length;
+  if (unreadCount > 0) {
+    messagesUnreadBadge.textContent = String(unreadCount);
+    messagesUnreadBadge.classList.remove("hidden");
+  } else {
+    messagesUnreadBadge.classList.add("hidden");
+  }
+}
+
+function renderMessageList(items) {
+  messageListEl.innerHTML = items
+    .map(
+      (m) => `
+    <div class="message-row${m.is_read ? "" : " message-row--unread"}" data-id="${m.id}">
+      <div class="message-row__info">
+        <div class="message-row__top">
+          <span class="message-row__sender">${escapeHtml(m.sender_name)}</span>
+          ${
+            m.confession_title
+              ? `<span class="message-row__tag">Dari curhatan: ${escapeHtml(m.confession_title)}</span>`
+              : `<span class="message-row__tag message-row__tag--general">Pesan umum</span>`
+          }
+        </div>
+        <p class="message-row__text">${escapeHtml(m.message)}</p>
+        <div class="message-row__meta">${formatDateTime(m.created_at)}</div>
+      </div>
+      <div class="message-row__actions">
+        ${
+          !m.is_read
+            ? `<button class="btn-edit" data-action="read" data-id="${m.id}">Tandai Dibaca</button>`
+            : ""
+        }
+        <button class="btn-danger" data-action="delete" data-id="${m.id}">Hapus</button>
+      </div>
+    </div>
+  `,
+    )
+    .join("");
+
+  messageListEl
+    .querySelectorAll('[data-action="read"]')
+    .forEach((btn) =>
+      btn.addEventListener("click", () => markMessageRead(btn.dataset.id)),
+    );
+  messageListEl
+    .querySelectorAll('[data-action="delete"]')
+    .forEach((btn) =>
+      btn.addEventListener("click", () => deleteMessage(btn.dataset.id)),
+    );
+}
+
+async function markMessageRead(id) {
+  const { error } = await supabaseClient
+    .from("messages")
+    .update({ is_read: true })
+    .eq("id", id);
+  if (error) {
+    console.error(error);
+    alert("Gagal menandai pesan sebagai dibaca.");
+    return;
+  }
+  loadMessages();
+}
+
+async function deleteMessage(id) {
+  if (!confirm("Hapus pesan ini? Tindakan ini tidak bisa dibatalkan.")) return;
+  const { error } = await supabaseClient.from("messages").delete().eq("id", id);
+  if (error) {
+    console.error(error);
+    alert("Gagal menghapus pesan.");
+    return;
+  }
+  loadMessages();
 }
 
 // =========================================================
