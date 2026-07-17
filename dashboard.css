@@ -397,3 +397,108 @@ main {
   text-align: center;
   padding: var(--space-3) 0;
 }
+
+/* ---- TAB BADGE (jumlah pesan belum dibaca) ---- */
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  margin-left: 5px;
+  border-radius: 999px;
+  background: var(--color-danger);
+  color: var(--color-white);
+  font-size: 10.5px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+/* ---- PESAN (messages) ---- */
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 6px;
+  border-radius: var(--radius-md);
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.message-row:last-child {
+  border-bottom: none;
+}
+
+.message-row--unread {
+  background: var(--color-sky-pale);
+  border-radius: var(--radius-md);
+}
+
+.message-row__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-row__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.message-row__sender {
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+.message-row__tag {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--color-sky);
+  color: var(--color-white);
+}
+
+.message-row__tag--general {
+  background: var(--color-gray-200);
+  color: var(--color-ink-soft);
+}
+
+.message-row__text {
+  font-size: 14px;
+  color: var(--color-ink);
+  white-space: pre-wrap;
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.message-row__meta {
+  font-size: 12px;
+  color: var(--color-ink-faint);
+}
+
+.message-row__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.message-row__actions button {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
