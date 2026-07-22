@@ -1636,13 +1636,20 @@ function setupVoiceToText(buttonEl, textareaEl, hintEl) {
 
   const recognition = new SpeechRecognition();
   recognition.lang = "id-ID";
-  recognition.continuous = true;
+  // PENTING: continuous=false sengaja dipakai (bukan true). Dalam mode
+  // continuous, Chrome punya bug lama: kalimat yang sedang tumbuh kadang
+  // dikirim ulang berkali-kali sebagai "final" (mis. "Aku" lalu "Aku
+  // ingin" lalu "Aku ingin bertemu" masing-masing ditandai final),
+  // sehingga hasilnya jadi menumpuk/berulang. Dengan continuous=false,
+  // setiap sesi hanya menangkap SATU ucapan dan langsung berhenti begitu
+  // pengguna diam sejenak — sesi berikutnya otomatis dimulai lagi lewat
+  // event "end", jadi seperti terus merekam tapi bebas dari bug tersebut.
+  recognition.continuous = false;
   recognition.interimResults = true;
 
   let isRecording = false;
   let shouldRestart = false;
-  // Teks yang sudah "terkunci" sebelum sesi pengenalan suara saat ini dimulai
-  // (isi textarea sebelum tombol ditekan, atau sebelum sesi di-restart otomatis)
+  // Teks yang sudah "terkunci" (final) dari ucapan-ucapan sebelumnya.
   let baseText = "";
 
   function setHint(text) {
@@ -1689,35 +1696,33 @@ function setupVoiceToText(buttonEl, textareaEl, hintEl) {
     }
   }
 
-  // PENTING: setiap event "result" membangun ULANG transkrip dari awal
-  // (index 0) memakai seluruh isi event.results milik sesi saat ini,
-  // bukan menambah-nambahkan (+=) ke variabel luar. Kalau di-+=,
-  // beberapa browser (terutama Chrome) kadang mengirim ulang potongan
-  // yang sama sebagai "final" lebih dari sekali, sehingga kata-katanya
-  // jadi berulang/dobel. Membangun ulang dari nol setiap kali membuat
-  // hasilnya selalu konsisten dengan apa yang benar-benar dikenali.
+  // Karena continuous=false, event.results dalam satu sesi hanya berisi
+  // SATU ucapan (satu index), jadi tidak ada risiko menumpuk hasil final
+  // yang sama berkali-kali seperti pada mode continuous.
   recognition.addEventListener("result", (event) => {
-    let finalText = "";
-    let interimText = "";
-    for (let i = 0; i < event.results.length; i++) {
+    let finalPiece = "";
+    let interimPiece = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
       const piece = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        finalText = joinText(finalText, piece.trim());
+        finalPiece = joinText(finalPiece, piece.trim());
       } else {
-        interimText = joinText(interimText, piece.trim());
+        interimPiece = joinText(interimPiece, piece.trim());
       }
     }
-    textareaEl.value = joinText(baseText, joinText(finalText, interimText));
+    if (finalPiece) {
+      // Kunci hasil ucapan ini ke baseText agar tidak terhitung ulang.
+      baseText = joinText(baseText, finalPiece);
+      textareaEl.value = baseText;
+    } else {
+      textareaEl.value = joinText(baseText, interimPiece);
+    }
   });
 
   recognition.addEventListener("end", () => {
-    // Browser (mis. Chrome) kadang menghentikan sesi setelah jeda diam;
-    // lanjutkan otomatis selama tombol masih dalam mode merekam.
+    // Satu ucapan selesai; langsung mulai sesi baru selama tombol
+    // masih dalam mode merekam, supaya terasa seperti rekaman menerus.
     if (shouldRestart) {
-      // Kunci teks yang sudah didapat sebagai basis untuk sesi baru,
-      // supaya sesi baru (yang result-nya mulai dari index 0 lagi)
-      // tidak menimpa atau mengulang teks yang sudah ada.
-      baseText = textareaEl.value.trim();
       try {
         recognition.start();
       } catch (err) {
