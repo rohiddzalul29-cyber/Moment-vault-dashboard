@@ -1641,8 +1641,9 @@ function setupVoiceToText(buttonEl, textareaEl, hintEl) {
 
   let isRecording = false;
   let shouldRestart = false;
+  // Teks yang sudah "terkunci" sebelum sesi pengenalan suara saat ini dimulai
+  // (isi textarea sebelum tombol ditekan, atau sebelum sesi di-restart otomatis)
   let baseText = "";
-  let finalTranscript = "";
 
   function setHint(text) {
     if (!hintEl) return;
@@ -1655,9 +1656,14 @@ function setupVoiceToText(buttonEl, textareaEl, hintEl) {
     }
   }
 
+  function joinText(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    return a + (/\s$/.test(a) ? "" : " ") + b;
+  }
+
   function startRecording() {
     baseText = textareaEl.value.trim();
-    finalTranscript = "";
     isRecording = true;
     shouldRestart = true;
     buttonEl.classList.add("is-recording");
@@ -1683,25 +1689,35 @@ function setupVoiceToText(buttonEl, textareaEl, hintEl) {
     }
   }
 
+  // PENTING: setiap event "result" membangun ULANG transkrip dari awal
+  // (index 0) memakai seluruh isi event.results milik sesi saat ini,
+  // bukan menambah-nambahkan (+=) ke variabel luar. Kalau di-+=,
+  // beberapa browser (terutama Chrome) kadang mengirim ulang potongan
+  // yang sama sebagai "final" lebih dari sekali, sehingga kata-katanya
+  // jadi berulang/dobel. Membangun ulang dari nol setiap kali membuat
+  // hasilnya selalu konsisten dengan apa yang benar-benar dikenali.
   recognition.addEventListener("result", (event) => {
-    let interimTranscript = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
+    let finalText = "";
+    let interimText = "";
+    for (let i = 0; i < event.results.length; i++) {
       const piece = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        finalTranscript += piece + " ";
+        finalText = joinText(finalText, piece.trim());
       } else {
-        interimTranscript += piece;
+        interimText = joinText(interimText, piece.trim());
       }
     }
-    const separator = baseText && !/\s$/.test(baseText) ? " " : "";
-    textareaEl.value =
-      baseText + separator + finalTranscript + interimTranscript;
+    textareaEl.value = joinText(baseText, joinText(finalText, interimText));
   });
 
   recognition.addEventListener("end", () => {
     // Browser (mis. Chrome) kadang menghentikan sesi setelah jeda diam;
     // lanjutkan otomatis selama tombol masih dalam mode merekam.
     if (shouldRestart) {
+      // Kunci teks yang sudah didapat sebagai basis untuk sesi baru,
+      // supaya sesi baru (yang result-nya mulai dari index 0 lagi)
+      // tidak menimpa atau mengulang teks yang sudah ada.
+      baseText = textareaEl.value.trim();
       try {
         recognition.start();
       } catch (err) {
