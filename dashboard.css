@@ -279,6 +279,72 @@ main {
   color: var(--color-ink-faint);
 }
 
+/* ---- VOICE TO TEXT (Journal & Curhat) ---- */
+.textarea-voice-wrap {
+  position: relative;
+}
+
+.textarea-voice-wrap textarea {
+  width: 100%;
+  padding-right: 42px;
+}
+
+.voice-btn {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--color-gray-200);
+  border-radius: 50%;
+  background: var(--color-white);
+  color: var(--color-ink-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.voice-btn:hover {
+  border-color: var(--color-sky);
+  color: var(--color-sky-deep);
+}
+
+.voice-btn:active {
+  transform: scale(0.94);
+}
+
+.voice-btn.is-recording {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-white);
+  animation: voicePulse 1.4s ease-in-out infinite;
+}
+
+.voice-btn.is-unsupported {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@keyframes voicePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(192, 86, 74, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(192, 86, 74, 0);
+  }
+}
+
+.voice-hint {
+  color: var(--color-sky-deep);
+  font-weight: 600;
+}
+
 /* ---- LIST ---- */
 .memory-list {
   display: flex;
