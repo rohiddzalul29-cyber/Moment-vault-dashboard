@@ -1614,3 +1614,133 @@ async function deleteCountdown(id) {
     resetCountdownForm();
   loadCountdowns();
 }
+
+// =========================================================
+// VOICE TO TEXT — Journal & Curhat
+// Memakai Web Speech API bawaan browser (gratis, tanpa API key).
+// Didukung di Chrome, Edge, dan Safari terbaru. Firefox belum
+// mendukung, tombol akan otomatis dinonaktifkan bila tidak didukung.
+// =========================================================
+function setupVoiceToText(buttonEl, textareaEl, hintEl) {
+  if (!buttonEl || !textareaEl) return;
+
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    buttonEl.disabled = true;
+    buttonEl.classList.add("is-unsupported");
+    buttonEl.title = "Voice-to-text tidak didukung di browser ini";
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "id-ID";
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  let isRecording = false;
+  let shouldRestart = false;
+  let baseText = "";
+  let finalTranscript = "";
+
+  function setHint(text) {
+    if (!hintEl) return;
+    if (text) {
+      hintEl.textContent = text;
+      hintEl.classList.remove("hidden");
+    } else {
+      hintEl.textContent = "";
+      hintEl.classList.add("hidden");
+    }
+  }
+
+  function startRecording() {
+    baseText = textareaEl.value.trim();
+    finalTranscript = "";
+    isRecording = true;
+    shouldRestart = true;
+    buttonEl.classList.add("is-recording");
+    buttonEl.title = "Berhenti merekam";
+    setHint("Mendengarkan... bicara sekarang");
+    try {
+      recognition.start();
+    } catch (err) {
+      // recognition mungkin sudah berjalan, abaikan
+    }
+  }
+
+  function stopRecording() {
+    isRecording = false;
+    shouldRestart = false;
+    buttonEl.classList.remove("is-recording");
+    buttonEl.title = "Rekam suara";
+    setHint("");
+    try {
+      recognition.stop();
+    } catch (err) {
+      // abaikan
+    }
+  }
+
+  recognition.addEventListener("result", (event) => {
+    let interimTranscript = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const piece = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += piece + " ";
+      } else {
+        interimTranscript += piece;
+      }
+    }
+    const separator = baseText && !/\s$/.test(baseText) ? " " : "";
+    textareaEl.value =
+      baseText + separator + finalTranscript + interimTranscript;
+  });
+
+  recognition.addEventListener("end", () => {
+    // Browser (mis. Chrome) kadang menghentikan sesi setelah jeda diam;
+    // lanjutkan otomatis selama tombol masih dalam mode merekam.
+    if (shouldRestart) {
+      try {
+        recognition.start();
+      } catch (err) {
+        stopRecording();
+      }
+    }
+  });
+
+  recognition.addEventListener("error", (event) => {
+    if (
+      event.error === "not-allowed" ||
+      event.error === "service-not-allowed"
+    ) {
+      stopRecording();
+      setHint("Izin mikrofon ditolak. Aktifkan akses mikrofon di browser.");
+    } else if (event.error === "no-speech") {
+      // biarkan 'end' menangani restart otomatis
+    } else {
+      stopRecording();
+    }
+  });
+
+  buttonEl.addEventListener("click", () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  });
+}
+
+setupVoiceToText(
+  document.getElementById("journal-voice-btn"),
+  journalContentInput,
+  document.getElementById("journal-voice-hint"),
+);
+
+setupVoiceToText(
+  document.getElementById("confession-voice-btn"),
+  confessionContentInput,
+  document.getElementById("confession-voice-hint"),
+);
