@@ -269,12 +269,43 @@
 
               <div class="form-row">
                 <label for="journal-content">Isi Catatan</label>
-                <textarea
-                  id="journal-content"
-                  rows="5"
-                  required
-                  placeholder="Tulis catatanmu di sini"
-                ></textarea>
+                <div class="textarea-voice-wrap">
+                  <textarea
+                    id="journal-content"
+                    rows="5"
+                    required
+                    placeholder="Tulis catatanmu di sini, atau rekam suaramu"
+                  ></textarea>
+                  <button
+                    type="button"
+                    id="journal-voice-btn"
+                    class="voice-btn"
+                    title="Rekam suara"
+                    aria-label="Rekam suara untuk mengisi catatan"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"
+                      ></path>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                      <line x1="12" y1="19" x2="12" y2="23"></line>
+                      <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                  </button>
+                </div>
+                <span
+                  id="journal-voice-hint"
+                  class="form-hint voice-hint hidden"
+                ></span>
               </div>
 
               <div id="journal-form-error" class="form-error"></div>
@@ -333,12 +364,43 @@
               </div>
               <div class="form-row">
                 <label for="confession-content">Isi Curhatan</label>
-                <textarea
-                  id="confession-content"
-                  rows="5"
-                  required
-                  placeholder="Tulis apa saja yang ingin kamu keluarkan"
-                ></textarea>
+                <div class="textarea-voice-wrap">
+                  <textarea
+                    id="confession-content"
+                    rows="5"
+                    required
+                    placeholder="Tulis apa saja yang ingin kamu keluarkan, atau rekam suaramu"
+                  ></textarea>
+                  <button
+                    type="button"
+                    id="confession-voice-btn"
+                    class="voice-btn"
+                    title="Rekam suara"
+                    aria-label="Rekam suara untuk mengisi curhatan"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"
+                      ></path>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                      <line x1="12" y1="19" x2="12" y2="23"></line>
+                      <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                  </button>
+                </div>
+                <span
+                  id="confession-voice-hint"
+                  class="form-hint voice-hint hidden"
+                ></span>
               </div>
               <div id="confession-form-error" class="form-error"></div>
               <button
